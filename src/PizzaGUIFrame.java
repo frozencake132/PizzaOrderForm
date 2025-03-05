@@ -4,60 +4,70 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class PizzaGUIFrame extends JFrame {
-
-    // Components for the pizza options
-    private JRadioButton thinCrust, regularCrust, deepDishCrust;
-    private JComboBox<String> pizzaSizeComboBox;
-    private JCheckBox topping1, topping2, topping3, topping4, topping5, topping6;
     private JTextArea orderTextArea;
-    private JButton orderButton, clearButton, quitButton;
-
-    // Prices and constants
-    private static final double[] SIZE_COSTS = {8.00, 12.00, 16.00, 20.00}; // Small, Medium, Large, Super
-    private static final double TOPPING_COST = 1.00;
-    private static final double TAX_RATE = 0.07;
+    private JComboBox<String> sizeComboBox;
+    private JRadioButton thinCrust, regularCrust, deepDishCrust;
+    private JCheckBox topping1, topping2, topping3, topping4, topping5, topping6;
 
     public PizzaGUIFrame() {
-        // Setting up the frame
         setTitle("Pizza Order Form");
-        setSize(400, 500);
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
 
-        // Panels for grouping options
+        // Initialize components
+        orderTextArea = new JTextArea(10, 30);
+        orderTextArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(orderTextArea);
+
+        // Create the panels for crust, size, and toppings
         JPanel crustPanel = createCrustPanel();
         JPanel sizePanel = createSizePanel();
-        JPanel toppingPanel = createToppingPanel();
-        JPanel buttonPanel = createButtonPanel();
-        JPanel orderPanel = createOrderPanel();
+        JPanel toppingsPanel = createToppingsPanel();
 
-        // Adding panels to the frame
-        add(crustPanel, BorderLayout.NORTH);
-        add(sizePanel, BorderLayout.WEST);
-        add(toppingPanel, BorderLayout.CENTER);
-        add(orderPanel, BorderLayout.SOUTH);
-        add(buttonPanel, BorderLayout.PAGE_END);
+        // Panel for buttons
+        JPanel buttonPanel = new JPanel();
+        JButton orderButton = new JButton("Order");
+        JButton clearButton = new JButton("Clear");
+        JButton quitButton = new JButton("Quit");
+
+        buttonPanel.add(orderButton);
+        buttonPanel.add(clearButton);
+        buttonPanel.add(quitButton);
+
+        // Add action listeners
+        orderButton.addActionListener(new OrderButtonListener());
+        clearButton.addActionListener(new ClearButtonListener());
+        quitButton.addActionListener(new QuitButtonListener());
+
+        // Layout setup
+        setLayout(new BorderLayout());
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.add(crustPanel);
+        topPanel.add(sizePanel);
+        topPanel.add(toppingsPanel);
+
+        // Adding everything to the frame
+        add(topPanel, BorderLayout.CENTER);
+        add(scrollPane, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     private JPanel createCrustPanel() {
-        // Crust Options
-        thinCrust = new JRadioButton("Thin Crust");
-        regularCrust = new JRadioButton("Regular Crust");
-        deepDishCrust = new JRadioButton("Deep-dish Crust");
+        // Create radio buttons for crust type
+        thinCrust = new JRadioButton("Thin");
+        regularCrust = new JRadioButton("Regular");
+        deepDishCrust = new JRadioButton("Deep-dish");
 
-        // Grouping radio buttons
+        // Group the buttons so only one can be selected at a time
         ButtonGroup crustGroup = new ButtonGroup();
         crustGroup.add(thinCrust);
         crustGroup.add(regularCrust);
         crustGroup.add(deepDishCrust);
 
-        // Default selection
-        regularCrust.setSelected(true);
-
-        // Panel setup
+        // Panel for crust options
         JPanel crustPanel = new JPanel();
         crustPanel.setBorder(BorderFactory.createTitledBorder("Crust Type"));
-        crustPanel.setLayout(new GridLayout(3, 1));
         crustPanel.add(thinCrust);
         crustPanel.add(regularCrust);
         crustPanel.add(deepDishCrust);
@@ -66,143 +76,130 @@ public class PizzaGUIFrame extends JFrame {
     }
 
     private JPanel createSizePanel() {
-        // Pizza Size ComboBox
+        // Create combo box for size selection
         String[] sizes = {"Small", "Medium", "Large", "Super"};
-        pizzaSizeComboBox = new JComboBox<>(sizes);
-        pizzaSizeComboBox.setSelectedIndex(1); // Default to Medium
+        sizeComboBox = new JComboBox<>(sizes);
 
-        // Panel setup
+        // Panel for size selection
         JPanel sizePanel = new JPanel();
         sizePanel.setBorder(BorderFactory.createTitledBorder("Pizza Size"));
-        sizePanel.add(pizzaSizeComboBox);
+        sizePanel.add(sizeComboBox);
 
         return sizePanel;
     }
 
-    private JPanel createToppingPanel() {
-        // Topping Options
-        topping1 = new JCheckBox("Cheese");
-        topping2 = new JCheckBox("Pepperoni");
-        topping3 = new JCheckBox("Mushrooms");
-        topping4 = new JCheckBox("Olives");
-        topping5 = new JCheckBox("Pineapple");
-        topping6 = new JCheckBox("Anchovies");
+    private JPanel createToppingsPanel() {
+        // Create checkboxes for toppings
+        topping1 = new JCheckBox("Pepperoni");
+        topping2 = new JCheckBox("Mushrooms");
+        topping3 = new JCheckBox("Olives");
+        topping4 = new JCheckBox("Pineapple");
+        topping5 = new JCheckBox("Sausage");
+        topping6 = new JCheckBox("Bacon");
 
-        // Panel setup
-        JPanel toppingPanel = new JPanel();
-        toppingPanel.setBorder(BorderFactory.createTitledBorder("Toppings"));
-        toppingPanel.setLayout(new GridLayout(3, 2));
-        toppingPanel.add(topping1);
-        toppingPanel.add(topping2);
-        toppingPanel.add(topping3);
-        toppingPanel.add(topping4);
-        toppingPanel.add(topping5);
-        toppingPanel.add(topping6);
+        // Panel for toppings
+        JPanel toppingsPanel = new JPanel();
+        toppingsPanel.setBorder(BorderFactory.createTitledBorder("Toppings"));
+        toppingsPanel.add(topping1);
+        toppingsPanel.add(topping2);
+        toppingsPanel.add(topping3);
+        toppingsPanel.add(topping4);
+        toppingsPanel.add(topping5);
+        toppingsPanel.add(topping6);
 
-        return toppingPanel;
+        return toppingsPanel;
     }
 
-    private JPanel createOrderPanel() {
-        // Order Display Area
-        orderTextArea = new JTextArea(10, 30);
-        orderTextArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(orderTextArea);
-
-        JPanel orderPanel = new JPanel();
-        orderPanel.add(scrollPane);
-
-        return orderPanel;
-    }
-
-    private JPanel createButtonPanel() {
-        // Buttons
-        orderButton = new JButton("Order");
-        clearButton = new JButton("Clear");
-        quitButton = new JButton("Quit");
-
-        // Button Actions
-        orderButton.addActionListener(new OrderButtonListener());
-        clearButton.addActionListener(new ClearButtonListener());
-        quitButton.addActionListener(new QuitButtonListener());
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(orderButton);
-        buttonPanel.add(clearButton);
-        buttonPanel.add(quitButton);
-
-        return buttonPanel;
-    }
-
-    // Listener for Order button
+    // Action Listener for the Order button
     private class OrderButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            // Get selected crust
-            String crust = getSelectedCrust();
+            double baseCost = 0;
+            String crust = "";
+            String size = (String) sizeComboBox.getSelectedItem();
+            double sizeCost = 0;
 
-            // Get selected size and price
-            String size = (String) pizzaSizeComboBox.getSelectedItem();
-            double sizeCost = SIZE_COSTS[pizzaSizeComboBox.getSelectedIndex()];
+            if (thinCrust.isSelected()) {
+                crust = "Thin";
+                sizeCost = 8.00;
+            } else if (regularCrust.isSelected()) {
+                crust = "Regular";
+                sizeCost = 12.00;
+            } else if (deepDishCrust.isSelected()) {
+                crust = "Deep-dish";
+                sizeCost = 16.00;
+            }
 
-            // Get selected toppings
+            // Price based on size
+            switch (size) {
+                case "Small": sizeCost = 8.00; break;
+                case "Medium": sizeCost = 12.00; break;
+                case "Large": sizeCost = 16.00; break;
+                case "Super": sizeCost = 20.00; break;
+            }
+
+            // Toppings cost
+            double toppingsCost = 0;
             StringBuilder toppings = new StringBuilder();
-            double toppingCost = 0;
             if (topping1.isSelected()) {
-                toppings.append("Cheese\n");
-                toppingCost += TOPPING_COST;
+                toppings.append("Pepperoni, ");
+                toppingsCost += 1.00;
             }
             if (topping2.isSelected()) {
-                toppings.append("Pepperoni\n");
-                toppingCost += TOPPING_COST;
+                toppings.append("Mushrooms, ");
+                toppingsCost += 1.00;
             }
             if (topping3.isSelected()) {
-                toppings.append("Mushrooms\n");
-                toppingCost += TOPPING_COST;
+                toppings.append("Olives, ");
+                toppingsCost += 1.00;
             }
             if (topping4.isSelected()) {
-                toppings.append("Olives\n");
-                toppingCost += TOPPING_COST;
+                toppings.append("Pineapple, ");
+                toppingsCost += 1.00;
             }
             if (topping5.isSelected()) {
-                toppings.append("Pineapple\n");
-                toppingCost += TOPPING_COST;
+                toppings.append("Sausage, ");
+                toppingsCost += 1.00;
             }
             if (topping6.isSelected()) {
-                toppings.append("Anchovies\n");
-                toppingCost += TOPPING_COST;
+                toppings.append("Bacon, ");
+                toppingsCost += 1.00;
             }
 
-            // Calculate total costs
-            double subTotal = sizeCost + toppingCost;
-            double tax = subTotal * TAX_RATE;
-            double total = subTotal + tax;
+            // Clean up trailing comma
+            if (toppings.length() > 0) {
+                toppings.setLength(toppings.length() - 2);
+            }
 
-            // Generate order details
-            String orderDetails = String.format(
+            double subtotal = sizeCost + toppingsCost;
+            double tax = subtotal * 0.07;
+            double total = subtotal + tax;
+
+            // Display order
+            String orderSummary = String.format(
                     "=========================================\n" +
-                            "Type of Crust: %s\n" +
-                            "Size: %s $%.2f\n" +
-                            "Ingredient Price:\n%s" +
-                            "Sub-total: $%.2f\n" +
-                            "Tax: $%.2f\n" +
+                            "Type of Crust: %s\nSize: %s\nPrice: $%.2f\n" +
+                            "Ingredients: %s\nPrice: $%.2f\n" +
+                            "-----------------------------------------\n" +
+                            "Subtotal: $%.2f\nTax: $%.2f\n" +
                             "-----------------------------------------\n" +
                             "Total: $%.2f\n" +
                             "=========================================",
-                    crust, size, sizeCost, toppings.toString(), subTotal, tax, total
+                    crust, size, sizeCost, toppings, toppingsCost, subtotal, tax, total
             );
 
-            orderTextArea.setText(orderDetails);
+            orderTextArea.setText(orderSummary);
         }
     }
 
-    // Listener for Clear button
+    // Action Listener for the Clear button
     private class ClearButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            sizeComboBox.setSelectedIndex(0);
             thinCrust.setSelected(false);
-            regularCrust.setSelected(true);
+            regularCrust.setSelected(false);
             deepDishCrust.setSelected(false);
-            pizzaSizeComboBox.setSelectedIndex(1);
             topping1.setSelected(false);
             topping2.setSelected(false);
             topping3.setSelected(false);
@@ -213,27 +210,22 @@ public class PizzaGUIFrame extends JFrame {
         }
     }
 
-    // Listener for Quit button
+    // Action Listener for the Quit button
     private class QuitButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int response = JOptionPane.showConfirmDialog(
-                    null, "Are you sure you want to quit?", "Quit", JOptionPane.YES_NO_OPTION
-            );
+            int response = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Quit", JOptionPane.YES_NO_OPTION);
             if (response == JOptionPane.YES_OPTION) {
                 System.exit(0);
             }
         }
     }
 
-    // Helper method to get selected crust type
-    private String getSelectedCrust() {
-        if (thinCrust.isSelected()) {
-            return "Thin Crust";
-        } else if (regularCrust.isSelected()) {
-            return "Regular Crust";
-        } else {
-            return "Deep-dish Crust";
-        }
+    public static void main(String[] args) {
+        // Run the application on the Event Dispatch Thread
+        SwingUtilities.invokeLater(() -> {
+            PizzaGUIFrame frame = new PizzaGUIFrame();
+            frame.setVisible(true);
+        });
     }
 }
